@@ -1,0 +1,6 @@
+.venv
+.pytest_cache
+__pycache__
+pikomino_gpt.py
+pikomino.ipynb
+env*/
