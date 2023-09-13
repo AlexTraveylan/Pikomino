@@ -1,7 +1,11 @@
-from src.core.actions import lauch_n_dices, compute_dices_score, compute_tile_value
+from src.core.actions import (
+    compute_tiles_score,
+    lauch_n_dices,
+    compute_dices_score,
+    compute_tile_value,
+    try_to_get_a_tile,
+)
 import pytest
-
-from src.core.types import TilePossibily, TileType
 
 
 @pytest.mark.parametrize("n", [1, 2, 3, 4, 5, 6, 7, 8])
@@ -30,14 +34,6 @@ def test_compute_dices_score(dices, expected_score):
     assert result == expected_score
 
 
-def try_to_get_a_tile(remining_tiles: list[TileType], score: int) -> TileType | None:
-    """Try to get a tile from the list of remining tiles."""
-    if score in remining_tiles:
-        remining_tiles.remove(score)
-        return score
-    return None
-
-
 @pytest.mark.parametrize(
     "remining_tiles, score, expected_result",
     [
@@ -55,7 +51,7 @@ def try_to_get_a_tile(remining_tiles: list[TileType], score: int) -> TileType | 
     ],
 )
 def test_try_to_get_a_tile(remining_tiles, score, expected_result):
-    result = try_to_get_a_tile(remining_tiles, score)
+    result, message = try_to_get_a_tile(remining_tiles, score, [])
 
     assert result == expected_result
     assert score not in remining_tiles
@@ -86,20 +82,6 @@ def test_compute_title_value(test_input, expected):
     value_to_test = compute_tile_value(test_input)
 
     assert expected == value_to_test
-
-
-def compute_tile_value(tile_index: TilePossibily) -> int:
-    """
-    Compute the value of a tite based on its index.
-    """
-    return (tile_index - 17) // 4
-
-
-def compute_tiles_score(tiles: TileType) -> int:
-    """
-    Compute the score of a list of tiles.
-    """
-    return sum([compute_tile_value(tile) for tile in tiles])
 
 
 @pytest.mark.parametrize(

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from enum import auto
 from strenum import StrEnum
+from src.core.constants import TILES
 
-from src.core.types import DiceType
+from src.core.types import ChooseResult, DiceType, TileType
 
 
 class Strategy(StrEnum):
@@ -19,7 +20,8 @@ class Strategy(StrEnum):
 
 class Game:
     # Not really pep8 compliant but i like it.
-    ...
+    def __init__(self) -> None:
+        self.tiles = TILES.copy()
 
 
 class Player(ABC):
@@ -29,38 +31,31 @@ class Player(ABC):
 
     def __init__(self, name: str):
         self.name = name
-        self.tiles = []
+        self.tiles: TileType = []
         self.strategy_name = Strategy.RANDOM
 
     @abstractmethod
-    def play_turn(self, game: Game) -> None:
+    def choose_dice_to_keep(
+        self, lauched_dices: DiceType, taken_dice_values: DiceType
+    ) -> ChooseResult | None:
         """
-        define how the player will play his turn
-
-        This set attributs of the player and the game
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def choose_tile_to_keep(self, game: Game) -> tuple[DiceType, DiceType]:
-        """
-        define how the player will choose a tile to keep
+        define how the player will choose dices to keep
 
         Return
         ------
-        tuple[DiceType, DiceType]
-            Dices chosen to keep, reminder dices
+        ChooseResult | None
+            Dices chosen to keep, reminder dices. None if the player cannot choose any dice
         """
         raise NotImplementedError
 
     @abstractmethod
-    def decide_to_continue(self, choose_result: tuple[DiceType, DiceType]) -> bool:
+    def decide_to_continue(self, choose_result: DiceType) -> bool:
         """
         define the strategy of the player to decide if he wants to continue
 
         Parameters
         ----------
-        choose_result: tuple[DiceType, DiceType]
+        choose_result: ChooseResult
             Dices chosen to keep, reminder dices
 
         Return
