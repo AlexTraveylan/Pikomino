@@ -27,3 +27,8 @@ class RandomPlayer(Player):
         if actual_score > 20:
             return False
         return True
+
+
+@dataclass(slots=True)
+class MonteCarloPlayer(Player):
+    pass

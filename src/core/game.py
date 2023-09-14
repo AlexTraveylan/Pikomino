@@ -9,11 +9,10 @@ from src.core.pikomino_logging import LOGGER
 from src.core.models import Game, Player
 from src.core.constants import NUMBER_OF_DICE
 from src.core.pikomino_types import DiceType
+from dataclasses import dataclass
 
-
+@dataclass(slots=True)
 class PikominoGame(Game):
-    def __init__(self, players: list[Player]) -> None:
-        super().__init__(players)
 
     def run(self):
         """Run the game."""
@@ -76,3 +75,4 @@ class PikominoGame(Game):
 
         player.tiles.append(tile)
         LOGGER.info(f"{player.name} got tile {tile}\n")
+
