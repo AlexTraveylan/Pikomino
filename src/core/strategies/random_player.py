@@ -1,6 +1,6 @@
 from src.core.actions import compute_dices_score
 from src.core.models import Game, Player
-from src.core.types import ChooseResult, DiceType
+from src.core.pikomino_types import DiceType
 
 
 class RandomPlayer(Player):
@@ -9,7 +9,7 @@ class RandomPlayer(Player):
 
     def choose_dice_to_keep(
         self, lauched_dices: DiceType, taken_dice_values: DiceType, game: Game
-    ) -> ChooseResult | None:
+    ) -> DiceType | None:
         possible_values = set(
             [dice for dice in lauched_dices if dice not in taken_dice_values]
         )
@@ -19,9 +19,8 @@ class RandomPlayer(Player):
 
         value_choosed = max(possible_values)
         choosed_dices = [dice for dice in lauched_dices if dice == value_choosed]
-        reminder_dices = [dice for dice in lauched_dices if dice != value_choosed]
 
-        return ChooseResult(choosed_dices, reminder_dices)
+        return choosed_dices
 
     def decide_to_continue(self, choose_result: DiceType, game: Game) -> bool:
         actual_score = compute_dices_score(choose_result)

@@ -3,7 +3,7 @@ import random
 
 from src.core.constants import DICE_DICT
 from src.core.models import Game, Player
-from src.core.types import DiceType, TilePossibily, TileType
+from src.core.pikomino_types import DiceType, TilePossibily, TileType
 
 
 def lauch_n_dices(n: int) -> DiceType:

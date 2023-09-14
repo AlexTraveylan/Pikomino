@@ -5,10 +5,10 @@ from src.core.actions import (
     lauch_n_dices,
     try_to_get_a_tile,
 )
-from src.core.logging import LOGGER
+from src.core.pikomino_logging import LOGGER
 from src.core.models import Game, Player
 from src.core.constants import NUMBER_OF_DICE
-from src.core.types import DiceType
+from src.core.pikomino_types import DiceType
 
 
 class PikominoGame(Game):

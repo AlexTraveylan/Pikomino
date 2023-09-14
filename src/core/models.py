@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from enum import auto
-from strenum import StrEnum
 from src.core.constants import TILES
+from enum import StrEnum, auto
 
-from src.core.types import ChooseResult, DiceType, TileType
+
+from src.core.pikomino_types import DiceType, TileType
 
 
 class Strategy(StrEnum):
@@ -18,7 +18,7 @@ class Strategy(StrEnum):
     AI = auto()
 
 
-class BasePLayer(ABC):
+class BasePlayer(ABC):
     def __init__(self, name: str):
         self.name = name
         self.tiles: TileType = []
@@ -26,14 +26,14 @@ class BasePLayer(ABC):
 
 
 class Game(ABC):
-    def __init__(self, players: list[BasePLayer]) -> None:
+    def __init__(self, players: list[BasePlayer]) -> None:
         if len(players) < 2 or len(players) > 7:
             raise ValueError("PikominoGame is designed for 2 to 7 players")
         self.tiles = TILES.copy()
         self.players = players
 
 
-class Player(BasePLayer, ABC):
+class Player(BasePlayer, ABC):
     """
     Implement this interface to create a player with a new strategy
     """
@@ -41,7 +41,7 @@ class Player(BasePLayer, ABC):
     @abstractmethod
     def choose_dice_to_keep(
         self, lauched_dices: DiceType, taken_dice_values: DiceType, game: Game
-    ) -> ChooseResult | None:
+    ) -> DiceType | None:
         """
         define how the player will choose dices to keep
 
@@ -56,8 +56,8 @@ class Player(BasePLayer, ABC):
 
         Return
         ------
-        ChooseResult | None
-            Dices chosen to keep, reminder dices. None if the player cannot choose any dice
+        DiceType | None
+            Dices chosen to keep. None if the player cannot choose any dice
         """
         raise NotImplementedError
 
