@@ -20,18 +20,19 @@ class PikominoGame(Game):
         while not self._check_end_condition():
             for player in self.players:
                 self._play_turn(player)
-        for player, score in self._compute_players_score().items():
-            LOGGER.info(f"{player.name} got {score} points")
+        for player_name, score in self._compute_players_score().items():
+            LOGGER.info(f"{player_name} got {score} points")
         LOGGER.info("Game finished")
-        LOGGER.info(f"The winner is {self._get_winner().name}")
+        winner_tuple_name_score = self._get_winner()
+        LOGGER.info(f"The winner is {winner_tuple_name_score[0]} with {winner_tuple_name_score[1]} points")
 
     def _compute_players_score(self) -> dict[Player, int]:
         """Compute the score of each player."""
-        return {player: compute_tiles_score(player.tiles) for player in self.players}
+        return {player.name: compute_tiles_score(player.tiles) for player in self.players}
 
     def _get_winner(self) -> Player:
         """Get the winner of the game."""
-        return max(self._compute_players_score().items(), key=lambda x: x[1])[0]
+        return max(self._compute_players_score().items(), key=lambda x: x[1])
 
     def _check_end_condition(self) -> bool:
         """Check if the game is finished."""
@@ -55,7 +56,7 @@ class PikominoGame(Game):
             )
             if choose_result is None:
                 break
-            choosen_dices = [*choosen_dices, *choose_result.choosen_dices]
+            choosen_dices = [*choosen_dices, *choose_result]
 
             is_played_continue = player.decide_to_continue(choosen_dices, self)
 

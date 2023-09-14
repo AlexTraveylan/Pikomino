@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from src.core.constants import TILES
 from enum import StrEnum, auto
 
@@ -18,21 +19,24 @@ class Strategy(StrEnum):
     AI = auto()
 
 
+@dataclass(slots=True)
 class BasePlayer(ABC):
-    def __init__(self, name: str):
-        self.name = name
-        self.tiles: TileType = []
-        self.strategy_name = Strategy.RANDOM
+    name: str
+    tiles: TileType = field(default_factory=list)
+    strategy_name = Strategy.RANDOM
 
 
+@dataclass(slots=True)
 class Game(ABC):
-    def __init__(self, players: list[BasePlayer]) -> None:
-        if len(players) < 2 or len(players) > 7:
+    players: list[BasePlayer]
+
+    def __post_init__(self) -> None:
+        if len(self.players) < 2 or len(self.players) > 7:
             raise ValueError("PikominoGame is designed for 2 to 7 players")
         self.tiles = TILES.copy()
-        self.players = players
 
 
+@dataclass(slots=True)
 class Player(BasePlayer, ABC):
     """
     Implement this interface to create a player with a new strategy

@@ -1,11 +1,11 @@
+from dataclasses import dataclass
 from src.core.actions import compute_dices_score
 from src.core.models import Game, Player
 from src.core.pikomino_types import DiceType
 
 
+@dataclass(slots=True)
 class RandomPlayer(Player):
-    def __init__(self, name: str):
-        super().__init__(name)
 
     def choose_dice_to_keep(
         self, lauched_dices: DiceType, taken_dice_values: DiceType, game: Game
