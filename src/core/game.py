@@ -13,11 +13,7 @@ from src.core.types import DiceType
 
 class PikominoGame(Game):
     def __init__(self, players: list[Player]) -> None:
-        super().__init__()
-        if len(players) < 2 or len(players) > 7:
-            raise ValueError("PikominoGame is designed for 2 to 7 players")
-
-        self.players = players
+        super().__init__(players)
 
     def run(self):
         """Run the game."""
@@ -54,12 +50,14 @@ class PikominoGame(Game):
         is_played_continue = True
         while is_played_continue:
             dices_lauched = lauch_n_dices(NUMBER_OF_DICE - len(choosen_dices))
-            choose_result = player.choose_dice_to_keep(dices_lauched, choosen_dices)
+            choose_result = player.choose_dice_to_keep(
+                dices_lauched, choosen_dices, self
+            )
             if choose_result is None:
                 break
             choosen_dices = [*choosen_dices, *choose_result.choosen_dices]
 
-            is_played_continue = player.decide_to_continue(choosen_dices)
+            is_played_continue = player.decide_to_continue(choosen_dices, self)
 
         if 6 not in choosen_dices or choose_result is None:
             message = fail_case(player, self)
