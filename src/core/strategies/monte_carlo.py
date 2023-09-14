@@ -14,7 +14,7 @@ from src.core.pikomino_types import DiceType
 
 @dataclass(slots=True)
 class MonteCarloPlayer(Player):
-    simulations = 1000
+    simulations = 10
 
     def choose_dice_to_keep(
         self, launched_dices: DiceType, taken_dice_values: DiceType, game: Game
@@ -69,21 +69,18 @@ class MonteCarloPlayer(Player):
             simulation_game = game.copy()
             simulation_player = self.copy()
             choosen_dices: DiceType = choose_result.copy()
-            is_played_continue = True
-            while is_played_continue:
-                dices_lauched = lauch_n_dices(NUMBER_OF_DICE - len(choosen_dices))
-                next_choose_result = simulation_player.choose_dice_to_keep(
-                    dices_lauched, choosen_dices, simulation_game
-                )
-                if next_choose_result is None:
-                    break
-                choosen_dices = [*choosen_dices, *next_choose_result]
 
-                is_played_continue = simulation_player.decide_to_continue(
-                    choosen_dices, simulation_game
-                )
+            dices_lauched = lauch_n_dices(NUMBER_OF_DICE - len(choosen_dices))
+            next_choose_result = simulation_player.choose_dice_to_keep(
+                dices_lauched, choosen_dices, simulation_game
+            )
 
-            if 6 not in choose_result or next_choose_result is None:
+            if next_choose_result is None:
+                stop_score += compute_tiles_score(simulation_game)
+                continue
+            choosen_dices = [*choosen_dices, *next_choose_result]
+
+            if 6 not in choose_result or choose_result is None:
                 message = fail_case(simulation_player, simulation_game)
                 stop_score += compute_tiles_score(simulation_game)
                 continue
@@ -97,6 +94,9 @@ class MonteCarloPlayer(Player):
                 message = fail_case(simulation_player, simulation_game)
                 stop_score += compute_tiles_score(simulation_game)
                 continue
+
+            simulation_player.tiles.append(tile)
+
             continue_score += compute_tiles_score(simulation_game)
 
         average_stop_score = stop_score / self.simulations
