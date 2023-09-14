@@ -50,9 +50,7 @@ class PikominoGame(Game):
         is_played_continue = True
         while is_played_continue:
             dices_lauched = lauch_n_dices(NUMBER_OF_DICE - len(choosen_dices))
-            choose_result = player.choose_dice_to_keep(
-                dices_lauched, choosen_dices, self
-            )
+            choose_result = player.choose_dice_to_keep(dices_lauched, choosen_dices, self)
             if choose_result is None:
                 break
             choosen_dices = [*choosen_dices, *choose_result]

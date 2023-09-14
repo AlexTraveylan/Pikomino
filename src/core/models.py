@@ -29,11 +29,25 @@ class BasePlayer(ABC):
 @dataclass(slots=True)
 class Game(ABC):
     players: list[BasePlayer]
+    tiles: TileType = field(init=False)
 
     def __post_init__(self) -> None:
+        """Check if the game is playable"""
         if len(self.players) < 2 or len(self.players) > 7:
             raise ValueError("PikominoGame is designed for 2 to 7 players")
+
         self.tiles = TILES.copy()
+
+    def copy(self):
+        """Return a copy of the game"""
+        copied_class = self.__class__(self.players.copy())
+        copied_class.tiles = self.tiles.copy()
+        return copied_class
+
+    @abstractmethod
+    def _play_turn(self, player: BasePlayer):
+        """Play a turn for a player"""
+        raise NotImplementedError
 
 
 @dataclass(slots=True)
@@ -83,3 +97,9 @@ class Player(BasePlayer, ABC):
             True if the player wants to continue, False otherwise
         """
         raise NotImplementedError
+
+    def copy(self):
+        """Return a copy of the player"""
+        copied_class = self.__class__(self.name)
+        copied_class.tiles = self.tiles.copy()
+        return copied_class

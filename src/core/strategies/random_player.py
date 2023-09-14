@@ -10,9 +10,7 @@ class RandomPlayer(Player):
     def choose_dice_to_keep(
         self, lauched_dices: DiceType, taken_dice_values: DiceType, game: Game
     ) -> DiceType | None:
-        possible_values = set(
-            [dice for dice in lauched_dices if dice not in taken_dice_values]
-        )
+        possible_values = set([dice for dice in lauched_dices if dice not in taken_dice_values])
 
         if len(possible_values) == 0:
             return None
@@ -29,6 +27,3 @@ class RandomPlayer(Player):
         return True
 
 
-@dataclass(slots=True)
-class MonteCarloPlayer(Player):
-    pass
