@@ -27,7 +27,7 @@ def try_to_get_a_tile(
         disponible_tile_for_player = player.tiles[-1] if len(player.tiles) > 0 else None
         if score == disponible_tile_for_player:
             player.tiles.remove(score)
-            return score, f"title #{score} was taken from {player.name}"
+            return score, f"Tile #{score} was taken from {player.name}"
 
     return None, f"failed to get tile for score {score}"
 
@@ -57,15 +57,16 @@ def fail_case(player: Player, game: Game) -> str:
     if len(player.tiles) == 0:
         return "Nothing happened because the player has no tile\n"
 
-    last_title_from_player = player.tiles[-1]
-    game.tiles.append(last_title_from_player)
-    message.write(f"{player.name} failed and lost tile #{last_title_from_player}\n")
-    player.tiles.remove(last_title_from_player)
+    last_tile_from_player = player.tiles[-1]
+    game.tiles.append(last_tile_from_player)
+    game.tiles.sort()
+    message.write(f"{player.name} failed and lost tile #{last_tile_from_player}\n")
+    player.tiles.remove(last_tile_from_player)
 
-    last_title_from_game = game.tiles[-1]
-    game.tiles.remove(last_title_from_game)
+    last_tile_from_game = game.tiles[-1]
+    game.tiles.remove(last_tile_from_game)
     message.write(
-        f"{player.name} failed and tile #{last_title_from_game} was removed from the game\n"
+        f"{player.name} failed and tile #{last_tile_from_game} was removed from the game\n"
     )
 
     return message.getvalue()

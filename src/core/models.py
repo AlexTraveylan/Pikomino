@@ -58,14 +58,14 @@ class Player(BasePlayer, ABC):
 
     @abstractmethod
     def choose_dice_to_keep(
-        self, lauched_dices: DiceType, taken_dice_values: DiceType, game: Game
+        self, launched_dices: DiceType, taken_dice_values: DiceType, game: Game
     ) -> DiceType | None:
         """
         define how the player will choose dices to keep
 
         Parameters
         ----------
-        lauched_dices: DiceType
+        launched_dices: DiceType
             Dices lauched by the player
         taken_dice_values: DiceType
             Dices already taken by the player
