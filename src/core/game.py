@@ -11,9 +11,9 @@ from src.core.constants import NUMBER_OF_DICE
 from src.core.pikomino_types import DiceType
 from dataclasses import dataclass
 
+
 @dataclass(slots=True)
 class PikominoGame(Game):
-
     def run(self):
         """Run the game."""
         while not self._check_end_condition():
@@ -23,11 +23,15 @@ class PikominoGame(Game):
             LOGGER.info(f"{player_name} got {score} points")
         LOGGER.info("Game finished")
         winner_tuple_name_score = self._get_winner()
-        LOGGER.info(f"The winner is {winner_tuple_name_score[0]} with {winner_tuple_name_score[1]} points")
+        LOGGER.info(
+            f"The winner is {winner_tuple_name_score[0]} with {winner_tuple_name_score[1]} points"
+        )
 
     def _compute_players_score(self) -> dict[Player, int]:
         """Compute the score of each player."""
-        return {player.name: compute_tiles_score(player.tiles) for player in self.players}
+        return {
+            player.name: compute_tiles_score(player.tiles) for player in self.players
+        }
 
     def _get_winner(self) -> Player:
         """Get the winner of the game."""
@@ -50,7 +54,9 @@ class PikominoGame(Game):
         is_played_continue = True
         while is_played_continue:
             dices_lauched = lauch_n_dices(NUMBER_OF_DICE - len(choosen_dices))
-            choose_result = player.choose_dice_to_keep(dices_lauched, choosen_dices, self)
+            choose_result = player.choose_dice_to_keep(
+                dices_lauched, choosen_dices, self
+            )
             if choose_result is None:
                 break
             choosen_dices = [*choosen_dices, *choose_result]
@@ -63,7 +69,8 @@ class PikominoGame(Game):
             return
 
         score = compute_dices_score(choosen_dices)
-        tile, message = try_to_get_a_tile(self.tiles, score, self.players)
+        others_players = [playr for playr in self.players if playr != player]
+        tile, message = try_to_get_a_tile(self.tiles, score, others_players)
         LOGGER.info(message)
 
         if tile is None:
@@ -73,4 +80,3 @@ class PikominoGame(Game):
 
         player.tiles.append(tile)
         LOGGER.info(f"{player.name} got tile {tile}\n")
-

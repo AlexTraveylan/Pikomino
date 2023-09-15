@@ -15,7 +15,7 @@ def lauch_n_dices(n: int) -> DiceType:
 
 
 def try_to_get_a_tile(
-    remining_tiles: TileType, score: TilePossibily, players: list[Player]
+    remining_tiles: TileType, score: TilePossibily, others_players: list[Player]
 ) -> tuple[TilePossibily | None, str]:
     """Try to get a tile from the list of remining tiles."""
 
@@ -23,7 +23,7 @@ def try_to_get_a_tile(
         remining_tiles.remove(score)
         return score, f"tile #{score} was taken from the game"
 
-    for player in players:
+    for player in others_players:
         disponible_tile_for_player = player.tiles[-1] if len(player.tiles) > 0 else None
         if score == disponible_tile_for_player:
             player.tiles.remove(score)
