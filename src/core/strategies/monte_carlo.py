@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from src.core.actions import (
     compute_dices_score,
+    compute_tile_value,
     compute_tiles_score,
     fail_case,
     lauch_n_dices,
@@ -9,97 +10,85 @@ from src.core.actions import (
 from src.core.constants import NUMBER_OF_DICE
 
 from src.core.models import Game, Player
-from src.core.pikomino_types import DiceType
+from src.core.pikomino_types import DicePossibily, DiceType
 
 
 @dataclass(slots=True)
 class MonteCarloPlayer(Player):
-    simulations = 10
+    simulations = 100
+    threshold = 0.7
 
     def choose_dice_to_keep(
         self, launched_dices: DiceType, taken_dice_values: DiceType, game: Game
     ) -> DiceType | None:
-        best_score = -1
-        best_choice = None
-
         possible_dices_to_keep = set(launched_dices) - set(taken_dice_values)
 
+        tree_result: dict[DicePossibily, int] = {}
+
+        if len(possible_dices_to_keep) == 0:
+            return None
+
         for possibility in possible_dices_to_keep:
-            total_score = 0
             for _ in range(self.simulations):
+                score = 0
                 simulation_game = game.copy()
-                simulation_game._play_turn(self.copy())
-                score = compute_tiles_score(simulation_game)
-                total_score += score
+                simulation_current_player = None
+                for player in simulation_game.players:
+                    if player.name == self.name:
+                        simulation_current_player = player
+                        break
 
-            average_score = total_score / self.simulations
-            if average_score > best_score:
-                best_score = average_score
-                best_choice = possibility
+                new_dices = [dice for dice in launched_dices if dice == possibility]
+                choosen_dices = [*taken_dice_values, *new_dices]
 
-        return best_choice
+                score = compute_dices_score(choosen_dices)
+
+                others_players = [
+                    playr
+                    for playr in simulation_game.players
+                    if playr != simulation_current_player
+                ]
+                tile, _ = try_to_get_a_tile(
+                    simulation_game.tiles, score, others_players
+                )
+                if tile is None:
+                    score += -1
+                else:
+                    score += compute_tile_value(possibility)
+
+                tree_result[possibility] = score
+
+        beter_choice: DicePossibily = max(
+            [(choice, possibility) for choice, possibility in tree_result.items()],
+            key=lambda x: x[1],
+        )[0]
+        beter_dices = [dice for dice in launched_dices if dice == beter_choice]
+
+        return beter_dices
 
     def decide_to_continue(self, choose_result: DiceType, game: Game) -> bool:
-        stop_score = 0
-        continue_score = 0
+        nb_none = 0
+        nb_ok = 0
 
+        # simulate if the player decide to stop
         for _ in range(self.simulations):
             simulation_game = game.copy()
-            simulation_player = self.copy()
-            if 6 not in choose_result or choose_result is None:
-                message = fail_case(simulation_player, simulation_game)
-                stop_score += compute_tiles_score(simulation_game)
-                continue
+            simulation_current_player: Player = None
+            for player in simulation_game.players:
+                if player.name == self.name:
+                    simulation_current_player = player
+                    break
 
-            score = compute_dices_score(choose_result)
-            tile, message = try_to_get_a_tile(
-                simulation_player.tiles, score, simulation_game.players
+            dices_lauched = lauch_n_dices(NUMBER_OF_DICE - len(choose_result))
+            result = simulation_current_player.choose_dice_to_keep(
+                dices_lauched, choose_result, simulation_game
             )
+            if result is None:
+                nb_none += 1
+            else:
+                nb_ok += 1
 
-            if tile is None:
-                message = fail_case(simulation_player, simulation_game)
-                stop_score += compute_tiles_score(simulation_game)
-                continue
-
-            simulation_player.tiles.append(tile)
-            stop_score += compute_tiles_score(simulation_game)
-
-        # Simulez le score si le joueur décide de continuer
-        for _ in range(self.simulations):
-            simulation_game = game.copy()
-            simulation_player = self.copy()
-            choosen_dices: DiceType = choose_result.copy()
-
-            dices_lauched = lauch_n_dices(NUMBER_OF_DICE - len(choosen_dices))
-            next_choose_result = simulation_player.choose_dice_to_keep(
-                dices_lauched, choosen_dices, simulation_game
-            )
-
-            if next_choose_result is None:
-                stop_score += compute_tiles_score(simulation_game)
-                continue
-            choosen_dices = [*choosen_dices, *next_choose_result]
-
-            if 6 not in choose_result or choose_result is None:
-                message = fail_case(simulation_player, simulation_game)
-                stop_score += compute_tiles_score(simulation_game)
-                continue
-
-            score = compute_dices_score(choose_result)
-            tile, message = try_to_get_a_tile(
-                simulation_player.tiles, score, simulation_game.players
-            )
-
-            if tile is None:
-                message = fail_case(simulation_player, simulation_game)
-                stop_score += compute_tiles_score(simulation_game)
-                continue
-
-            simulation_player.tiles.append(tile)
-
-            continue_score += compute_tiles_score(simulation_game)
-
-        average_stop_score = stop_score / self.simulations
-        average_continue_score = continue_score / self.simulations
+        average_stop_score = nb_none / self.simulations
+        average_continue_score = nb_ok / self.simulations
 
         return average_continue_score > average_stop_score
