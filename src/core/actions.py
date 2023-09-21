@@ -15,13 +15,9 @@ def lauch_n_dices(n: int) -> DiceType:
 
 
 def try_to_get_a_tile(
-    remining_tiles: TileType, score: TilePossibily, others_players: list[Player]
+    remining_tiles: TileType, score: int, others_players: list[Player]
 ) -> tuple[TilePossibily | None, str]:
     """Try to get a tile from the list of remining tiles."""
-
-    if score in remining_tiles:
-        remining_tiles.remove(score)
-        return score, f"tile #{score} was taken from the game"
 
     for player in others_players:
         disponible_tile_for_player = player.tiles[-1] if len(player.tiles) > 0 else None
@@ -29,10 +25,22 @@ def try_to_get_a_tile(
             player.tiles.remove(score)
             return score, f"Tile #{score} was taken from {player.name}"
 
+    if len(remining_tiles) > 0 and score >= min(remining_tiles):
+        nearest_tile = find_first_nearest_tile(remining_tiles, score)
+        remining_tiles.remove(nearest_tile)
+        return nearest_tile, f"tile #{nearest_tile} was taken from the game"
+
     return None, f"failed to get tile for score {score}"
 
 
-def compute_dices_score(dices: DiceType):
+def find_first_nearest_tile(remining_tiles: TileType, score: int) -> TilePossibily:
+    """Find the first tile under a score."""
+    nearest_tile = max([tile for tile in remining_tiles if tile <= score])
+
+    return nearest_tile
+
+
+def compute_dices_score(dices: DiceType) -> int:
     """Compute the score of a list of dices."""
     return sum([DICE_DICT.get(dice) for dice in dices])
 

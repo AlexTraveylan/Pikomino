@@ -1,5 +1,6 @@
 from src.core.actions import (
     compute_tiles_score,
+    find_first_nearest_tile,
     lauch_n_dices,
     compute_dices_score,
     compute_tile_value,
@@ -47,7 +48,7 @@ def test_compute_dices_score(dices, expected_score):
         ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 28, 28),
         ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 29, 29),
         ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 30, 30),
-        ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 31, None),
+        ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 31, 30),
     ],
 )
 def test_try_to_get_a_tile(remining_tiles, score, expected_result):
@@ -98,3 +99,18 @@ def test_compute_tile_value(tiles, expected_score):
     result = compute_tiles_score(tiles)
 
     assert result == expected_score
+
+
+@pytest.mark.parametrize(
+    "remining_tiles, score, expected_result",
+    [
+        ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 21, 21),
+        ([21, 22, 23, 26, 27, 28, 29, 30], 25, 23),
+        ([21, 22, 23, 32], 30, 23),
+        ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30], 31, 30),
+    ],
+)
+def test_find_first_nearest_tile(remining_tiles, score, expected_result):
+    result = find_first_nearest_tile(remining_tiles, score)
+
+    assert result == expected_result

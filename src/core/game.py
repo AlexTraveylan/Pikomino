@@ -41,6 +41,9 @@ class PikominoGame(Game):
         """Check if the game is finished."""
         return len(self.tiles) == 0
 
+    def other_players(self, player: Player) -> list[Player]:
+        return [playr for playr in self.players if playr != player]
+
     def _play_turn(self, player: Player):
         """
         Play a turn for a player.
@@ -69,7 +72,7 @@ class PikominoGame(Game):
             return
 
         score = compute_dices_score(choosen_dices)
-        others_players = [playr for playr in self.players if playr != player]
+        others_players = self.other_players(player)
         tile, message = try_to_get_a_tile(self.tiles, score, others_players)
         LOGGER.info(message)
 
